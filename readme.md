@@ -152,13 +152,72 @@ Jenkins的安装需要JDK环境，JDK安装方法自行参考网络。Jenkins的
 ###	6	构建选择Execute shell
 ![image](https://github.com/lxbboy326/jenkins-for-iOS-with-fastlane-and-svn/blob/master/resources/28.png)
 
-####	
+####	Execute shell代码段
+	
+	#!/bin/bash
+	#计时
+	SECONDS=0
+	#假设脚本放置在与项目相同的路径下
+	project_path=$(pwd)
+	# 创建build路径
+	build_path=${project_path}/build
+	# 清空并建立路径
+	if [ -d ${build_path} ];then
+	rm -rf ${build_path}; fi;
+	mkdir ${build_path};
 
+	#取当前时间字符串添加到文件结尾
+	now=$(date +"%Y_%m_%d_%H_%M_%S")
 
+	#指定项目的scheme名称
+	scheme=$(ls | grep xcodeproj | awk -F.xcodeproj '{print $1}')
+	#指定要打包的配置名
+	configuration="Release"
+	#指定打包所使用的输出方式，目前支持app-store, package, ad-hoc, enterprise, development, 和developer-id，即xcodebuild的method参数
+	export_method='enterprise'
 
+	#info.plist路径
+	project_infoplist_path="$project_path/${scheme}/Info.plist"
+	#获取版本号
+	bundleShortVersion=$(/usr/libexec/PlistBuddy -c "print CFBundleShortVersionString" "${project_infoplist_path}")
+	#清空并记录当前编译版本号
+	echo > version.txt
+	echo "${bundleShortVersion}">> version.txt
 
+	#指定项目地址
+	workspace_path="$project_path/${scheme}.xcworkspace"
+	#指定输出路径
+	output_path=${build_path}
+	#指定输出归档文件地址
+	archive_path="$output_path/${scheme}_${now}.xcarchive"
+	#指定输出ipa地址
+	ipa_path="$output_path/${scheme}_${now}.ipa"
+	#指定输出ipa名称
+	ipa_name="${scheme}.ipa"
+	#获取执行命令时的commit message
+	commit_msg="$1"
 
+	#输出设定的变量值
+	echo "===workspace path: ${workspace_path}==="
+	echo "===archive path: ${archive_path}==="
+	echo "===ipa path: ${ipa_path}==="
+	echo "===export method: ${export_method}==="
+	echo "===commit msg: $1==="
 
+	#先清空前一次build
+	fastlane gym --workspace ${workspace_path} --scheme ${scheme} --clean --configuration ${configuration} --archive_path 	${archive_path} --export_method ${export_method} --output_directory ${output_path} --output_name ${ipa_name}
 
+	#输出总用时
+	echo "===Finished. Total time: ${SECONDS}s==="
+
+###	7	构建后操作增加邮件提醒，选择Editable Email Notification
+![image](https://github.com/lxbboy326/jenkins-for-iOS-with-fastlane-and-svn/blob/master/resources/29.png)
+配置触发操作：
+![image](https://github.com/lxbboy326/jenkins-for-iOS-with-fastlane-and-svn/blob/master/resources/30.png)
+![image](https://github.com/lxbboy326/jenkins-for-iOS-with-fastlane-and-svn/blob/master/resources/31.png)
+![image](https://github.com/lxbboy326/jenkins-for-iOS-with-fastlane-and-svn/blob/master/resources/32.png)
+
+###	8	构建后操作增加文件上传，选择Send build artifacts over FTP
+![image](https://github.com/lxbboy326/jenkins-for-iOS-with-fastlane-and-svn/blob/master/resources/33.png)
 
 
