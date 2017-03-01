@@ -38,7 +38,63 @@ Jenkins的安装需要JDK环境，JDK安装方法自行参考网络。Jenkins的
 
 设置用户名密码邮件等，最后Save and Finish，OK，到此Jenkins初始化安装完成。
 
-##   三、安装系统插件
-在“系统管理->管理插件->可选插件”中，选择下载必要的插件。
-1、	Publish Over FTP Plugin
-2、	Email Extension Plugin
+###   1   安装系统插件
+在“系统管理->管理插件->可选插件”中，选择下载必要的插件。<br>
+1、	Publish Over FTP Plugin<br>
+2、	Email Extension Plugin<br>
+###   2   系统配置
+####   2.1   在“系统管理->系统设置”中找到“Jenkins Location”配置，配置如下图：
+![image](https://github.com/lxbboy326/jenkins-for-iOS-with-fastlane-and-svn/blob/master/resources/13.png)
+####   2.2   在“系统管理->系统设置”中找到“Publish over FTP”配置，配置如下图：
+![image](https://github.com/lxbboy326/jenkins-for-iOS-with-fastlane-and-svn/blob/master/resources/14.png)
+####   2.3   在“系统管理->系统设置”中找到“Extended E-mail Notification”配置，配置如下图：
+![image](https://github.com/lxbboy326/jenkins-for-iOS-with-fastlane-and-svn/blob/master/resources/15.png)
+![image](https://github.com/lxbboy326/jenkins-for-iOS-with-fastlane-and-svn/blob/master/resources/16.png)
+![image](https://github.com/lxbboy326/jenkins-for-iOS-with-fastlane-and-svn/blob/master/resources/17.png)
+
+
+####   Default Content样例：
+```
+(本邮件是程序自动下发的，请勿回复！)<br/><hr/>
+项目名称：$PROJECT_NAME<br/><hr/>
+版本号：${FILE,path="version.txt"}<br/><hr/>
+svn版本号：${SVN_REVISION}<br/><hr/>
+构建状态：$BUILD_STATUS<br/><hr/>
+触发原因：${CAUSE}<br/><hr/>
+构建日志地址：<a href="${BUILD_URL}console">${BUILD_URL}console</a><br/><hr/>
+变更集:${JELLY_SCRIPT,template="html"}<br/><hr/>
+```
+##    三、Fastlane安装
+###   1   安装ruby版本>=2.2
+####    1.1   安装rvm版本管理器
+  `$ curl -L https://get.rvm.io | bash -s stable`
+####    1.2   等待一段时间后， 使用一下命令进行验证
+  ```
+	$ source ~/.bashrc
+  $ source ~/.bash_profile
+  ```
+####    1.3   测试是否安装正常
+  `$ rvm -v`
+如果出现rvm（版本号）.....基本就算是安装RVM成功了。<br>
+补充一些常用命令：<br>
+```
+    rvm list 查看已安装ruby
+    rvm list known 列出ruby可安装版本信息
+    rvm remove 2.2.2 卸载一个已安装的ruby版本
+    gem source 查看已有源
+    gem sources -a http://ruby.taobao.org把源切换至淘宝镜像服务器
+```
+####    1.4   安装ruby
+    `$ rvm install 2.4`
+
+###   2   安装fastlane，详细资料请看[Github地址](https://github.com/fastlane/fastlane)
+####    2.1   命令安装
+    `$ sudo gem install fastlane`
+####    2.2   查看版本
+    `$ fastlane –v`<br>
+    ![image](https://github.com/lxbboy326/jenkins-for-iOS-with-fastlane-and-svn/blob/master/resources/18.png)
+
+
+
+
+
