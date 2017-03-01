@@ -2,13 +2,13 @@
 ![image](https://github.com/lxbboy326/jenkins-for-iOS-with-fastlane-and-svn/blob/master/resources/1.png)
 ##    一、搭建环境
 Jenkins的安装需要JDK环境，JDK安装方法自行参考网络。Jenkins的安装有两种方式，一种是java包安装，另一种是pkg可执行程序（两种安装后的配置一样，pkg安装会在电脑上多出一个用户）。本文采用war包 + tomcat安装方法。
-### 1   安装[Java](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)环境，请自行下载安装
+###	1   安装[Java](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)环境，请自行下载安装
 ![image](https://github.com/lxbboy326/jenkins-for-iOS-with-fastlane-and-svn/blob/master/resources/2.png)
-### 2   安装[tomcat](https://tomcat.apache.org/),打开官网地址
+###	2   安装[tomcat](https://tomcat.apache.org/),打开官网地址
 ![image](https://github.com/lxbboy326/jenkins-for-iOS-with-fastlane-and-svn/blob/master/resources/3.png)
-#### 2.1    将下载的zip包解压（可以重命名），把解压后的文件夹放到 /Library下。
+####	2.1    将下载的zip包解压（可以重命名），把解压后的文件夹放到 /Library下。
 ![image](https://github.com/lxbboy326/jenkins-for-iOS-with-fastlane-and-svn/blob/master/resources/4.png)
-#### 2.2    在终端启动Tomcat服务器，这里首先cd到Tomcat的bin目录：   
+####	2.2    在终端启动Tomcat服务器，这里首先cd到Tomcat的bin目录：   
 `sudo chmod 755 *.sh`<br>
 按回车键之后会提示输入密码，请输入管理员密码。之后输入并回车:<br>
 `sudo sh startup.sh`<br>
@@ -73,6 +73,7 @@ Jenkins的安装需要JDK环境，JDK安装方法自行参考网络。Jenkins的
 	$ rvm -v
 如果出现rvm（版本号）.....基本就算是安装RVM成功了。<br>
 补充一些常用命令：<br>
+	
 	rvm list 查看已安装ruby
 	rvm list known 列出ruby可安装版本信息
 	rvm remove 2.2.2 卸载一个已安装的ruby版本
@@ -80,12 +81,82 @@ Jenkins的安装需要JDK环境，JDK安装方法自行参考网络。Jenkins的
 	gem sources -a http://ruby.taobao.org把源切换至淘宝镜像服务器
 ####    1.4   安装ruby
 	$ rvm install 2.4
+	
 ###   2   安装fastlane，详细资料请看[Github地址](https://github.com/fastlane/fastlane)
+
 ####    2.1   命令安装
 	$ sudo gem install fastlane
+	
 ####    2.2   查看版本
 	$ fastlane –v
 ![image](https://github.com/lxbboy326/jenkins-for-iOS-with-fastlane-and-svn/blob/master/resources/18.png)
+
+####    2.3   查看命令方法
+	$ fastlane actions
+![image](https://github.com/lxbboy326/jenkins-for-iOS-with-fastlane-and-svn/blob/master/resources/19.png)
+
+####    2.4   查看指定方法
+	$ fastlane actions gym
+![image](https://github.com/lxbboy326/jenkins-for-iOS-with-fastlane-and-svn/blob/master/resources/20.png)
+
+##	四、Jenkins新建Job
+
+###	1	新建一个item，选择自由风格的项目
+![image](https://github.com/lxbboy326/jenkins-for-iOS-with-fastlane-and-svn/blob/master/resources/21.png)
+
+###	2	输入项目名称，描述等基本信息。
+![image](https://github.com/lxbboy326/jenkins-for-iOS-with-fastlane-and-svn/blob/master/resources/22.png)
+
+###	3 源代码管理，因为使用的是SVN，所以选择Subversion。具体操作如下图所示：
+![image](https://github.com/lxbboy326/jenkins-for-iOS-with-fastlane-and-svn/blob/master/resources/23.png)
+点击Add配置SVN用户信息。如下图所示：
+![image](https://github.com/lxbboy326/jenkins-for-iOS-with-fastlane-and-svn/blob/master/resources/24.png)
+成功配置如下图所示：
+![image](https://github.com/lxbboy326/jenkins-for-iOS-with-fastlane-and-svn/blob/master/resources/25.png)
+
+###	4	配置构建触发器
+####	4.1触发器支持多种类型，常用的有：
+	
+	A 定期进行构建（Build periodically）
+	B 根据提交进行构建（Build when a change is pushed to GitHub）
+	C 定期检测代码更新，如有更新则进行构建（Poll SCM）
+	
+构建触发器的选择为复合选项，若选择多种类型，则任一类型满足构建条件时就会执行构建工作。
+
+关于定时器（Schedule）的格式，简述如下：MINUTE HOUR DOM MONTH DOW
+	
+	•  MINUTE: Minutes within the hour (0-59)
+	•  HOUR: The hour of the day (0-23)
+	•  DOM: The day of the month (1-31)
+	•  MONTH: The month (1-12)
+	•  DOW: The day of the week (0-7) where 0 and 7 are Sunday.
+
+通常情况下需要指定多个值，这时可以采用如下operator（优先级从上到下）：
+	
+	•  *适配所有有效的值，若不指定某一项，则以*占位；
+	•  M-N适配值域范围，例如7-9代表7/8/9均满足；
+	•  M-N/X或*/X：以X作为间隔；
+	•  A,B,C：枚举多个值。
+另外，为了避免多个任务在同一时刻同时触发构建，在指定时间段时可以配合使用H字符。添加H字符后，Jenkins会在指定时间段内随机选择一个时间点作为起始时刻，然后加上设定的时间间隔，计算得到后续的时间点。直到下一个周期时，Jenkins又会重新随机选择一个时间点作为起始时刻，依次类推。
+
+为了便于理解，列举几个示例：
+	
+	•  H/15 * * * *：代表每隔15分钟，并且开始时间不确定，这个小时可能是:07,:22,:37,:52，下一个小时就可能是:03,:18,:33,:48；
+	•  H(0-29)/10 * * * *：代表前半小时内每隔10分钟，并且开始时间不确定，这个小时可能是:04,:14,:24，下一个小时就可能是:09,:19,:29；
+	•  H 23 * * 1-5：工作日每晚23:00至23:59之间的某一时刻；
+![image](https://github.com/lxbboy326/jenkins-for-iOS-with-fastlane-and-svn/blob/master/resources/26.png)	
+
+###	5	构建环境（没有用到，暂未深入研究）
+![image](https://github.com/lxbboy326/jenkins-for-iOS-with-fastlane-and-svn/blob/master/resources/27.png)
+
+###	6	构建选择Execute shell
+![image](https://github.com/lxbboy326/jenkins-for-iOS-with-fastlane-and-svn/blob/master/resources/28.png)
+
+####	
+
+
+
+
 
 
 
