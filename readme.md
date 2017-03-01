@@ -221,3 +221,4 @@ Jenkins的安装需要JDK环境，JDK安装方法自行参考网络。Jenkins的
 ![image](https://github.com/lxbboy326/jenkins-for-iOS-with-fastlane-and-svn/blob/master/resources/33.png)
 
 
+# 至此，Jenkins的安装配置完成，立即构建查看效果吧。
